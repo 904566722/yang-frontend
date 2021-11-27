@@ -4,6 +4,7 @@
 @import './element-ui.scss';
 @import './sidebar.scss';
 @import './btn.scss';
+@import './color';
 
 body {
   height: 100%;
@@ -122,6 +123,8 @@ aside {
 //main-container全局样式
 .app-container {
   padding: 20px;
+  //color: $my_background_gray;
+  background-color: $my_background_gray;
 }
 
 .components-container {
@@ -188,4 +191,30 @@ aside {
 
 .multiselect--active {
   z-index: 1000 !important;
+}
+
+// 大标题
+.big-title{
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  font-size: 20px;
+}
+
+.second-title{
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  font-size: 18px;
+}
+
+.small-title {
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  font-size: 16px;
+}
+
+.content{
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  font-size: 14px;
+}
+
+.description-content{
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+  font-size: 12px;
 }

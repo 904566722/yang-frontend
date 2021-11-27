@@ -158,16 +158,21 @@ export default {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm)
             .then(() => {
+              console.log('login success')
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
             })
             .catch(() => {
+              console.log('login failed')
               this.loading = false
             })
         } else {
           console.log('error submit!!')
           return false
         }
+        // getIncome('income-1s9reeg3xv').then(resp => {
+        //   this.incomeInfo = resp
+        // })
       })
     },
     getOtherQuery(query) {

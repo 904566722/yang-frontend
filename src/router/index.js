@@ -84,6 +84,18 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/bookkeeping',
+    component: Layout,
+    children: [
+      {
+        path: 'bookkeeping',
+        component: () => import('@/views/book-keeping/index'),
+        name: '记账',
+        meta: { title: '记账', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
+  {
     path: '/documentation',
     component: Layout,
     children: [
