@@ -44,8 +44,8 @@ service.interceptors.response.use(
    */
   response => {
     const res = response.data
-
     // if the custom code is not 20000, it is judged as an error.
+    console.log(res) // debug
     if (res.code !== 'yang.0000') {
       Message({
         message: res.message || 'Error',
@@ -72,7 +72,6 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
     Message({
       message: error.message,
       type: 'error',
