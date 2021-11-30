@@ -110,6 +110,34 @@
                 <el-button size="mini">录入</el-button>
               </el-table-column>
             </el-table>
+
+            <el-table
+              row-key="id"
+              :data="otherOutcomeCtgs[0].outcomes"
+            >
+              <el-table-column
+                label="弹性支出"
+              >
+                <template slot-scope="scope">
+                  {{ scope.row.remark }}
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="数目"
+              >
+                <template slot-scope="scope">
+                  {{ scope.row.amount }}
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="操作"
+              >
+                <template slot-scope="scope">
+                  <el-button size="mini">修改</el-button>
+                  <el-button size="mini" type="danger" @click="doDeleteOutcome(scope.row.id)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
           </div>
         </el-col>
       </div>
@@ -209,14 +237,14 @@
         <el-button type="primary" size="mini" @click="doUpdateOutcome">确 定</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
 <script>
 import { getIncome, getCtgs, getYearMon, getIncomeCtgs, getOutcomeCtgs,
   createIncome, createOutcome,
-  updateIncome, updateOutcome
+  updateIncome, updateOutcome,
+  deleteOutcome
 } from '@/api/book-keeping'
 import { parseTime } from '@/utils'
 import echarts from 'echarts'
@@ -244,6 +272,7 @@ export default {
   },
   data() {
     return {
+      aaa: false,
       yearMon: {
         year: 1998,
         mon: 12
@@ -305,6 +334,8 @@ export default {
       monIncomeCtgs: [],
       monOutcomeCtgs: [],
       dayOutcomeCtgs: [],
+      otherOutcomeCtgs: [{ outcomes: [] }],
+      otherOutcomeDeleteVisible: false,
       opDayData: [
         {
           id: 1,
@@ -359,6 +390,7 @@ export default {
         }
         this.doGetMonIncomeCtgs()
         this.doGetMonOutcomeCtgs()
+        this.doGetOtherOutcomeCtgs()
       })
       this.doGetDayOutcomeCtgs()
     },
@@ -584,6 +616,21 @@ export default {
         this.dayOutcomeCtgs = resp.data
       })
     },
+    doGetOtherOutcomeCtgs() {
+      const listQuery = {
+        'op_unit': 'o',
+        'associations': [
+          {
+            'name': 'Outcomes',
+            'belong_year': this.yearMon.year,
+            'belong_mon': this.yearMon.mon
+          }
+        ]
+      }
+      getOutcomeCtgs(listQuery).then(resp => {
+        this.otherOutcomeCtgs = resp.data
+      })
+    },
     handleCreateIncome(scope) {
       console.log(scope) // debug
       this.createIncomeInput.income_category_id = scope.row.id
@@ -650,6 +697,13 @@ export default {
         this.updateOutcomeInput.amount = undefined
       }).catch(err => {
         console.log(err)
+      })
+    },
+    doDeleteOutcome(outcomeId) {
+      this.otherOutcomeDeleteVisible = false
+      deleteOutcome(outcomeId).then(resp => {
+        this.$message.success('删除成功')
+        this.doGetOtherOutcomeCtgs()
       })
     }
   }

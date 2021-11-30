@@ -23,6 +23,13 @@ export function createOutcome(outcome) {
   })
 }
 
+export function deleteOutcome(outcomeId) {
+  return request({
+    url: `/outcome/${outcomeId}`,
+    method: 'delete'
+  })
+}
+
 export function updateIncome(income) {
   return request({
     url: `/income/${income.id}`,
