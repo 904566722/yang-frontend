@@ -78,23 +78,24 @@
         </el-col>
         <el-col :span="12">
           <div class="operations day">
+            <div class="operations day button">
+              <el-button type="success" size="mini" @click="handleCreateOutcome2">添加</el-button>
+            </div>
             <el-table
               row-key="id"
-              :data="dayOutcomeCtgs"
+              :data="dayEatOutcomes"
               :tree-props="{children: 'outcomes', hasChildren: 'hasChildren'}"
             >
               <el-table-column
                 label="名称"
               >
-                <template slot-scope="scope">
-                  {{ scope.row.name }}
-                </template>
+                饭钱
               </el-table-column>
               <el-table-column
                 label="数目"
               >
                 <template slot-scope="scope">
-                  {{ scope.row.amount }}
+                  <span> {{ scope.row.amount }}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -151,8 +152,8 @@
             type="warning"
             :closable="false"
           >
-            日均支出：<span class="chart-summary bold">{{ eatAvg }}</span>，对比告警值：<span class="chart-summary bold">{{ eatLimit }}</span>
-            ，推荐之后日支出：<span class="chart-summary bold">23</span>，当前总计支出：<span class="chart-summary bold">1000</span>
+            日均支出：<span class="chart-summary bold">{{ monEat.day_avg }}</span>，对比告警值：<span class="chart-summary bold">{{ eatLimit }}</span>
+            ，推荐之后日支出：<span class="chart-summary bold">23</span>，当前总计支出：<span class="chart-summary bold">{{ monEat.amount_total }}</span>
           </el-alert>
         </el-col>
         <el-col :span="12">
@@ -161,7 +162,7 @@
             type="info"
             :closable="false"
           >
-            本月共 <span class="chart-summary bold">3</span> 笔弹性支出，总计支出：<span class="chart-summary bold">107</span>
+            本月共 <span class="chart-summary bold">3</span> 笔弹性支出，总计支出：<span class="chart-summary bold">{{ monOther.amount_total }}</span>
           </el-alert>
         </el-col>
       </div>
@@ -205,7 +206,7 @@
           <el-input v-model="updateIncomeInput.amount" style="width: 100px" />
         </el-form-item>
         <el-form-item label="收入说明">
-          <el-input v-model="incomeCtgInfo.incomes[0].remark" />
+          <el-input v-model="updateIncomeInput.remark" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -229,7 +230,7 @@
           <el-input v-model="updateOutcomeInput.amount" style="width: 100px">s</el-input>
         </el-form-item>
         <el-form-item label="支出说明">
-          <el-input v-model="outcomeCtgInfo.outcomes[0].remark" />
+          <el-input v-model="updateOutcomeInput.remark" />
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -237,16 +238,41 @@
         <el-button type="primary" size="mini" @click="doUpdateOutcome">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog
+      title="添加支出"
+      :visible.sync="createOutcomeVisible"
+      width="50%"
+      center
+    >
+      <el-form :model="createOutcomeInput" :inline="true" size="mini">
+        <el-form-item label="支出类别">
+          <el-select v-model="createOutcomeInput.outcome_category_id">
+            <el-option v-for="value in allOutcomeCtgs" :key="value.id" :label="value.name" :value="value.id" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="金额">
+          <el-input v-model="createOutcomeInput.amount" style="width: 100px" />
+        </el-form-item>
+        <el-form-item label="支出说明">
+          <el-input v-model="createOutcomeInput.remark" />
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="mini" @click="createOutcomeVisible = false">取 消</el-button>
+        <el-button type="primary" size="mini" @click="doCreateOutcome2">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { getIncome, getCtgs, getYearMon, getIncomeCtgs, getOutcomeCtgs,
+import { getIncome, getCtgs, getYearMon, getIncomeCtgs, getOutcomeCtgs, getOutcomes,
   createIncome, createOutcome,
   updateIncome, updateOutcome,
-  deleteOutcome
+  deleteOutcome,
+  statisticMonEat
 } from '@/api/book-keeping'
-import { parseTime } from '@/utils'
+import { parseTime, parseTime2 } from '@/utils'
 import echarts from 'echarts'
 import resize from '@/components/Charts/mixins/resize'
 export default {
@@ -301,8 +327,9 @@ export default {
         income_category_id: ''
       },
       createOutcomeInput: {
-        amount: undefined,
-        outcome_category_id: ''
+        amount: 0,
+        outcome_category_id: '',
+        remark: ''
       },
       updateIncomeDialog: false,
       updateOutcomeDialog: false,
@@ -334,6 +361,7 @@ export default {
       monIncomeCtgs: [],
       monOutcomeCtgs: [],
       dayOutcomeCtgs: [],
+      allOutcomeCtgs: [],
       otherOutcomeCtgs: [{ outcomes: [] }],
       otherOutcomeDeleteVisible: false,
       opDayData: [
@@ -365,12 +393,25 @@ export default {
           ]
         }
       ],
+      dayEatOutcomes: [],
+      createOutcomeVisible: false,
       chartDay: null,
       chartMon: null,
       eatSummary: '吃饭总结',
       eatAvg: 42.5,
       eatLimit: 40,
-      incomeInfo: {}
+      incomeInfo: {},
+      monEat: {
+        dates: [],
+        values: [],
+        amountTotal: 0,
+        dayAvg: 0
+      },
+      monOther: {
+        dates: [],
+        values: [],
+        amount_total: 0
+      }
     }
   },
   mounted() {
@@ -382,6 +423,7 @@ export default {
   methods: {
     initPageInfo() {
       const curTime = parseTime(new Date(), '{y}-{m}-{d} {h}:{i}:{s}')
+      this.doGetDayEat()
       getYearMon(curTime).then(resp => {
         const data = resp.data
         this.yearMon = {
@@ -391,6 +433,8 @@ export default {
         this.doGetMonIncomeCtgs()
         this.doGetMonOutcomeCtgs()
         this.doGetOtherOutcomeCtgs()
+        this.doGetDayEat()
+        this.doStatisticMonEat()
       })
       this.doGetDayOutcomeCtgs()
     },
@@ -409,7 +453,8 @@ export default {
         xAxis: {
           name: '日期',
           type: 'category',
-          data: ['10-1', '10-2', '10-3', '10-4', '10-5', '10-6', '10-7', '10-8', '10-9', '10-10', '10-11', '10-12', '10-13', '10-14', '10-15', '10-16', '10-17', '10-18', '10-19', '10-20', '10-21', '10-22']
+          // data: ['10-1', '10-2', '10-3', '10-4', '10-5', '10-6', '10-7', '10-8', '10-9', '10-10', '10-11', '10-12', '10-13', '10-14', '10-15', '10-16', '10-17', '10-18', '10-19', '10-20', '10-21', '10-22']
+          data: this.monEat.dates
         },
         yAxis: {
           name: '金额',
@@ -422,12 +467,14 @@ export default {
         series: [
           {
             name: '吃饭',
-            data: [10, 20, 0, 40, 50, 33, 26, 30, 20, 22, 50, 22, 100, 198, 211, 23, 55, 65, 33, 22, 400],
+            // data: [10, 20, 0, 40, 50, 33, 26, 30, 20, 22, 50, 22, 100, 198, 211, 23, 55, 65, 33, 22, 400],
+            data: this.monEat.values,
             type: 'line'
           },
           {
             name: '弹性支出',
-            data: [0, 0, 0, '-', '-', '-', 0, 20, 0, 0, 0, 0, 100, 40],
+            // data: [0, 0, 0, '-', '-', '-', 0, 20, 0, 0, 0, 0, 100, 40],
+            data: this.monOther.values,
             type: 'line',
             colorBy: 'data'
           }
@@ -705,6 +752,52 @@ export default {
         this.$message.success('删除成功')
         this.doGetOtherOutcomeCtgs()
       })
+    },
+    doGetDayEat() {
+      const curTime2 = parseTime2(new Date())
+      const listQuery = {
+        outcome_category_id: 'outcome-c-fjs74859km',
+        belong_year: curTime2.y,
+        belong_mon: curTime2.m,
+        belong_day: curTime2.d
+      }
+      getOutcomes(listQuery).then(res => {
+        this.dayEatOutcomes = res.data
+      })
+    },
+    handleCreateOutcome2() {
+      this.createOutcomeVisible = true
+      getOutcomeCtgs({ op_unit: 'd' }).then(res => {
+        this.allOutcomeCtgs = res.data
+      })
+    },
+    doCreateOutcome2() {
+      this.createOutcomeInput.amount = parseFloat(this.createOutcomeInput.amount)
+      const outcome = {
+        outcome: this.createOutcomeInput
+      }
+      createOutcome(outcome).then(res => {
+        this.$message.success('添加成功')
+        this.doGetDayEat()
+        this.doGetOtherOutcomeCtgs()
+      })
+      this.createOutcomeVisible = false
+    },
+    doStatisticMonEat() {
+      const input = {
+        belong_year: this.yearMon.year,
+        belong_mon: this.yearMon.mon,
+        outcome_category_id: 'outcome-c-fjs74859km'
+      }
+      statisticMonEat(input).then(res => {
+        this.monEat = res.data
+        this.initChart()
+      })
+      input.outcome_category_id = 'outcome-c-fsywu5io69'
+      statisticMonEat(input).then(res => {
+        this.monOther = res.data
+        this.initChart()
+      })
     }
   }
 }
@@ -719,14 +812,15 @@ export default {
   padding: 5px 0;
 }
 .operations{
-  background-color: #2ac06d;
   margin-bottom: 10px;
 }
 .operations.month{
   background-color: #6BA2D6;
 }
 .operations.day{
-  background-color: #2b2f3a;
+}
+.operations.day.button{
+  margin-bottom: 5px;
 }
 .chart{
   background-color: white;

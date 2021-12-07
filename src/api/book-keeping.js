@@ -7,6 +7,14 @@ export function getIncome(incomeId) {
   })
 }
 
+export function getOutcomes(listQuery) {
+  return request({
+    url: '/outcomes',
+    method: 'post',
+    data: listQuery
+  })
+}
+
 export function createIncome(income) {
   return request({
     url: '/income',
@@ -81,5 +89,13 @@ export function getYearMon(curTime) {
     params: {
       'cur_time': curTime
     }
+  })
+}
+
+export function statisticMonEat(input) {
+  return request({
+    url: '/statistic/mon/eat',
+    method: 'post',
+    data: input
   })
 }

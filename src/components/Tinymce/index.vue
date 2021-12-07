@@ -16,6 +16,7 @@ import editorImage from './components/EditorImage'
 import plugins from './plugins'
 import toolbar from './toolbar'
 import load from './dynamicLoadScript'
+import { uploadImage } from '@/api/common'
 
 // why use this cdn, detail see https://github.com/PanJiaChen/tinymce-all-in-one
 const tinymceCDN = 'https://cdn.jsdelivr.net/npm/tinymce-all-in-one@4.9.3/tinymce.min.js'
@@ -130,6 +131,8 @@ export default {
         advlist_bullet_styles: 'square',
         advlist_number_styles: 'default',
         imagetools_cors_hosts: ['www.tinymce.com', 'codepen.io'],
+        // images_upload_url: 'http://127.0.0.1:8080/v1/upload/image',
+        images_upload_handler: this.my_images_upload_handler,
         default_link_target: '_blank',
         paste_data_images: true,
         link_title: false,
@@ -168,24 +171,42 @@ export default {
         //   }, 0);
         //   return img
         // },
-        // images_upload_handler(blobInfo, success, failure, progress) {
-        //   progress(0);
-        //   const token = _this.$store.getters.token;
-        //   getToken(token).then(response => {
-        //     const url = response.data.qiniu_url;
-        //     const formData = new FormData();
-        //     formData.append('token', response.data.qiniu_token);
-        //     formData.append('key', response.data.qiniu_key);
-        //     formData.append('file', blobInfo.blob(), url);
-        //     upload(formData).then(() => {
-        //       success(url);
-        //       progress(100);
-        //     })
-        //   }).catch(err => {
-        //     failure('出现未知问题，刷新页面，或者联系程序员')
-        //     console.log(err);
-        //   });
-        // },
+      })
+    },
+    my_images_upload_handler(blobInfo, success, failure, progress) {
+      console.log(blobInfo.blob())
+      // progress(0)
+      const formData = new FormData()
+      formData.append('file', blobInfo.blob(), blobInfo.filename())
+      console.log(formData)
+      uploadImage(formData).then(res => {
+        console.log(res)
+        this.$message.success('上传成功')
+        // progress(100)
+      })
+      // this.doUploadImage(formData).then(res => {
+      //   success(url)
+      //   progress(100)
+      // })
+      // const token = _this.$store.getters.token
+      // getToken(token).then(response => {
+      //   // const url = response.data.qiniu_url;
+      //   const formData = new FormData()
+      //   // formData.append('token', response.data.qiniu_token)
+      //   // formData.append('key', response.data.qiniu_key)
+      //   formData.append('file', blobInfo.blob(), url)
+      //   this.doUploadImage(formData).then(() => {
+      //     success(url)
+      //     progress(100)
+      //   })
+      // }).catch(err => {
+      //   failure('出现未知问题，刷新页面，或者联系程序员')
+      //   console.log(err)
+      // })
+    },
+    doUploadImage(formData) {
+      uploadImage(formData).then(res => {
+        console.log(res) // debug
       })
     },
     destroyTinymce() {
