@@ -767,7 +767,7 @@ export default {
     },
     handleCreateOutcome2() {
       this.createOutcomeVisible = true
-      getOutcomeCtgs({ op_unit: 'd' }).then(res => {
+      getOutcomeCtgs({ op_unit: '!m' }).then(res => {
         this.allOutcomeCtgs = res.data
       })
     },

@@ -96,6 +96,30 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/flow',
+    component: Layout,
+    children: [
+      {
+        path: 'flow',
+        component: () => import('@/views/flow/index'),
+        name: '流',
+        meta: { title: '流', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
+  {
+    path: '/work-flow',
+    component: Layout,
+    children: [
+      {
+        path: 'work-flow',
+        component: () => import('@/views/flow/workFlow'),
+        name: '工作流',
+        meta: { title: '工作流', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
+  {
     path: '/test',
     component: Layout,
     children: [
