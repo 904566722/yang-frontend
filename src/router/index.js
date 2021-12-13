@@ -96,6 +96,18 @@ export const constantRoutes = [
     ]
   },
   {
+    path: '/bookkeeping2',
+    component: Layout,
+    children: [
+      {
+        path: 'bookkeeping2',
+        component: () => import('@/views/book-keeping/index2'),
+        name: '记账2',
+        meta: { title: '记账2', icon: 'dashboard', affix: true }
+      }
+    ]
+  },
+  {
     path: '/flow',
     component: Layout,
     children: [
@@ -108,16 +120,18 @@ export const constantRoutes = [
     ]
   },
   {
-    path: '/work-flow',
+    path: '/work-flow/:id',
     component: Layout,
     children: [
       {
-        path: 'work-flow',
+        path: '',
         component: () => import('@/views/flow/workFlow'),
         name: '工作流',
-        meta: { title: '工作流', icon: 'dashboard', affix: true }
+        meta: { title: '流', icon: 'dashboard', affix: true }
       }
-    ]
+    ],
+    // component: () => import('@/views/flow/workFlow'),
+    hidden: true
   },
   {
     path: '/test',

@@ -13,6 +13,13 @@
           label="标题"
         />
         <el-table-column
+          label="进度"
+        >
+          <template slot-scope="scope">
+            <el-progress :percentage="scope.row.progress" :format="progressFormat" :status="progressStatus(scope.row.progress)" />
+          </template>
+        </el-table-column>
+        <el-table-column
           label="流"
         >
           <template slot-scope="scope">
@@ -26,8 +33,10 @@
         <el-table-column
           label="操作"
         >
-          <el-button size="mini" type="success">查看</el-button>
-          <el-button size="mini" type="danger">删除</el-button>
+          <template slot-scope="scope">
+            <el-button size="mini" type="success" @click="handleToWaterPage(scope.row)">查看</el-button>
+            <el-button size="mini" type="danger">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
     </div>
@@ -92,7 +101,11 @@ export default {
           {
             name: 'Flow'
           }
-        ]
+        ],
+        order_by: {
+          column: 'created_at',
+          desc: true
+        }
       }
       getWaters(listQuery).then(res => {
         this.waters = res.data
@@ -102,8 +115,26 @@ export default {
       const water = this.createWaterInput
       createWater(water).then(res => {
         this.$message.success('创建成功')
+        this.doGetWaters()
       })
       this.addWaterVisible = false
+    },
+    handleToWaterPage(water) {
+      this.$router.push({ path: `/work-flow/${water.id}` })
+    },
+    progressFormat(percentage) {
+      return percentage === 100 ? '完成' : `${percentage}%`
+    },
+    progressStatus(percentage) {
+      if (percentage < 30) {
+        return 'exception'
+      } else if (percentage < 60) {
+        return 'warning'
+      } else if (percentage < 100) {
+        return 'primary'
+      } else if (percentage === 100) {
+        return 'success'
+      }
     }
   }
 }

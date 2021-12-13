@@ -256,6 +256,9 @@
         <el-form-item label="支出说明">
           <el-input v-model="createOutcomeInput.remark" />
         </el-form-item>
+        <el-form-item>
+          <el-checkbox v-model="yesterday">补昨天</el-checkbox>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button size="mini" @click="createOutcomeVisible = false">取 消</el-button>
@@ -393,6 +396,7 @@ export default {
           ]
         }
       ],
+      yesterday: false,
       dayEatOutcomes: [],
       createOutcomeVisible: false,
       chartDay: null,
@@ -774,7 +778,8 @@ export default {
     doCreateOutcome2() {
       this.createOutcomeInput.amount = parseFloat(this.createOutcomeInput.amount)
       const outcome = {
-        outcome: this.createOutcomeInput
+        outcome: this.createOutcomeInput,
+        yesterday: this.yesterday
       }
       createOutcome(outcome).then(res => {
         this.$message.success('添加成功')

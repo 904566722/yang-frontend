@@ -20,6 +20,23 @@ export function createTodo(todo) {
   })
 }
 
+export function createWaterClt(waterClt) {
+  return request({
+    url: '/water/clt',
+    method: 'post',
+    data: {
+      water_clt: waterClt
+    }
+  })
+}
+
+export function deleteWaterClt(waterCltId) {
+  return request({
+    url: `/water/clt/${waterCltId}`,
+    method: 'delete'
+  })
+}
+
 export function getFlows(listQuery) {
   return request({
     url: '/flows',
@@ -44,10 +61,26 @@ export function getSortKlgs(listQuery) {
   })
 }
 
+export function getTodos(listQuery) {
+  return request({
+    url: '/water/todos',
+    method: 'post',
+    data: listQuery
+  })
+}
+
 export function getWater(waterId) {
   return request({
     url: `/water/${waterId}`,
     method: 'get'
+  })
+}
+
+export function getWaterClts(listQuery) {
+  return request({
+    url: '/water/clts',
+    method: 'post',
+    data: listQuery
   })
 }
 
@@ -57,6 +90,36 @@ export function createWater(water) {
     method: 'post',
     data: {
       water: water
+    }
+  })
+}
+
+export function updateWater(water) {
+  return request({
+    url: `/water/update/${water.id}`,
+    method: 'post',
+    data: {
+      water: water
+    }
+  })
+}
+
+export function updateTodo(todo) {
+  return request({
+    url: `/water/todo/update/${todo.id}`,
+    method: 'post',
+    data: {
+      todo: todo
+    }
+  })
+}
+
+export function updateWaterClt(waterClt) {
+  return request({
+    url: `/water/clt/update/${waterClt.id}`,
+    method: 'post',
+    data: {
+      water_collection: waterClt
     }
   })
 }

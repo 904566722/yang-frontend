@@ -7,6 +7,14 @@ export function getIncome(incomeId) {
   })
 }
 
+export function getIncomes(listQuery) {
+  return request({
+    url: '/incomes',
+    method: 'post',
+    data: listQuery
+  })
+}
+
 export function getOutcomes(listQuery) {
   return request({
     url: '/outcomes',
